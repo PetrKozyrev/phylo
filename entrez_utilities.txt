@@ -1,0 +1,24 @@
+1. Запрашивает в базе нуклеотидных последовательностей все последовательности по названию гена ... для организма ... и возвращает xml
+
+esearch -email kozyrevpa@gmail.com -tool mytool -db nucleotide -query "gspt1 AND human[orgn]" > human_gspt1.xml
+
+### Я так понимаю, что ты имела в виду сделать вариант без efetch, но я не понимаю, зачем нужен запрос сам по себе без последовательностей.
+
+2. (например, esearch+esummary) делает то же самое, что и первая команда, после чего возвращает таблицу с UID (в XML это поле называется Id), accession number(в XML это поле называется Caption), длиной последовательности (Slen);
+
+esearch -email kozyrevpa@gmail.com -tool mytool -db nucleotide -query "gspt1 AND human[orgn]" | esummary -mode text -format docsum | xtract -pattern DocumentSummary -element Id Caption Slen > human_gspt2.txt
+
+3.(например, esearch+efetch) делает то же самое, что и первая команда, а затем возвращает нуклеотидные последовательности в формате fasta, которые записывает в файл;
+
+esearch -email kozyrevpa@gmail.com -tool mytool -db nucleotide -query "gspt1 AND human[orgn]" | efetch -format fasta -mode text > human_gspt3.fa
+
+4. (elink+efetch) скачивает все последовательности из работы с PMID ... (например,12890024)
+
+library(reutils)
+options(reutils.email = "email@example.com")
+
+l <- elink("12890024", dbFrom = "pubmed", dbTo = "nucleotide")
+l1 <- linkset(l)
+
+f <- efetch(l1, db="nucleotide", rettype = "fasta", retmode = "text")
+write(content(f), "my_test.faa")
